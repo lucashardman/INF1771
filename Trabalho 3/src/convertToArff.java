@@ -12,20 +12,20 @@ import java.util.Set;
 
 public class convertToArff {
 
-	private static ArrayList<String> POSreviews = new ArrayList<String>();
-	private static ArrayList<String> NEGreviews = new ArrayList<String>();
+	public static ArrayList<String> POSreviews = new ArrayList<String>();
+	public static ArrayList<String> NEGreviews = new ArrayList<String>();
 
-	private static ArrayList<String> UselessWordsList = new ArrayList<String>();
+	public static ArrayList<String> UselessWordsList = new ArrayList<String>();
 
-	private static ArrayList<String[]> POSwords = new ArrayList<String[]>();
-	private static ArrayList<String[]> NEGwords = new ArrayList<String[]>();
+	public static ArrayList<String[]> POSwords = new ArrayList<String[]>();
+	public static ArrayList<String[]> NEGwords = new ArrayList<String[]>();
 
-	private static int top_n_words = 100;
+	public static int top_n_words = 100;
 
-	private static stringCont topStringsVectorPOS[] = new stringCont[top_n_words];
-	private static stringCont topStringsVectorNEG[] = new stringCont[top_n_words];
+	public static stringCont topStringsVectorPOS[] = new stringCont[top_n_words];
+	public static stringCont topStringsVectorNEG[] = new stringCont[top_n_words];
 
-	private static void UselessWords() {
+	public static void UselessWords() {
 
 		// Articles
 		UselessWordsList.add("\\b" + "a" + "\\b");
@@ -353,7 +353,7 @@ public class convertToArff {
 		UselessWordsList.add("\\b" + "\n" + "\\b");
 	}
 
-	private static void loadReviews(String directory, boolean positive) throws IOException {
+	public static void loadReviews(String directory, boolean positive) throws IOException {
 
 		File dir = new File(directory);
 		File[] files = dir.listFiles();
@@ -389,7 +389,7 @@ public class convertToArff {
 
 	}
 
-	private static void removeUseless() {
+	public static void removeUseless() {
 
 		System.out.println("-> Removing useless words from positive reviews");
 
@@ -528,7 +528,7 @@ public class convertToArff {
 		System.out.println("-> Ok.");
 	}
 
-	private static void convertToArray() {
+	public static void convertToArray() {
 
 		System.out.println("-> Converting positive reviews's words to vector");
 		for (int i = 0; i < POSreviews.size(); i++) {
@@ -557,7 +557,7 @@ public class convertToArff {
 		System.out.println("-> Ok.");
 	}
 
-	private static void separatingMostRelevant() {
+	public static void separatingMostRelevant() {
 
 		ArrayList<String> allPOSwords = new ArrayList<String>();
 		ArrayList<String> allNEGwords = new ArrayList<String>();
@@ -741,28 +741,57 @@ public class convertToArff {
 		System.out.println("-> Ok.");
 	}
 
-	private static void createArff(){
-		
-		PrintWriter writer = null;
-		
-		
+	public static void createArff(){
+
 		
 		try {
-			writer = new PrintWriter("src/output/the-file-name.arff", "UTF-8");
+			PrintWriter arquivo = new PrintWriter("src/output/arquivo.arff", "UTF-16");
+			
+			arquivo.println("@relation reviews");
+			arquivo.println("");
+			
+			// Escreve as palavras negativas
+			for (int i = 0; i < topStringsVectorPOS.length; i++){
+				arquivo.println("@attribute " + topStringsVectorPOS[i].string + " real");
+			}
+			
+			// Escreve as palavras positivas
+			for (int j = 0; j < topStringsVectorNEG.length; j++)
+				arquivo.println("@attribute " + topStringsVectorNEG[j].string + " real");
+			
+			
+			arquivo.println("@attribute opiniao {pos, neg}");
+			arquivo.println("");
+			arquivo.println("@data");
+			
+			for(int i=0; i<POSwords.size(); i++){
+				for(int j=1; j<POSwords.get(i).length; j++){
+					arquivo.printf(POSwords.get(i)[j]);
+					arquivo.printf(",");
+				}
+				arquivo.printf("pos\n");
+			}
+			
+			for(int i=0; i<NEGwords.size(); i++){
+				
+			}
+			
+			// Fechar depois de usar
+			arquivo.close();
+			
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		writer.println("The first line");
-		writer.println("The second line");
-		writer.close();
+		
+		
 	}
 	
 	public static void main(String[] args) {
 
+		long startTime = System.currentTimeMillis();
+		
 		System.out.println("Loading...\n");
 		UselessWords();
 
@@ -789,13 +818,6 @@ public class convertToArff {
 
 		convertToArray();
 
-		// System.out.println(POSreviews.get(10)+"\n");
-		//System.out.println("Test example result:\n");
-
-		/*
-		 * String x = ""; for (int y = 0; y < POSwords.get(1).length; y++) { x =
-		 * POSwords.get(1)[y]; System.out.println(x); }
-		 */
 		System.out.println("\nOk.\n");
 
 		System.out.println("Separating most relevant words...\n");
@@ -808,7 +830,13 @@ public class convertToArff {
 
 		createArff();
 		
-		System.out.println(".arff created. Location: \nEnd.");
+		System.out.println("Ok.\n");
+		
+		long stopTime = System.currentTimeMillis();
+	    long elapsedTime = (stopTime - startTime)/1000;
+		
+		System.out.println(".arff created.\nLocation: src/output/name\n"+"Tempo de execução: "+elapsedTime+" segundos\nEnd.");
+
 	}
 
 }
