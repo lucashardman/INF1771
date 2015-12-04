@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -566,7 +567,7 @@ public class convertToArff {
 		int auxPercentAnt = 0;
 
 		System.out.println("-> Joining all positive words on a list.");
-		
+
 		for (String[] s : POSwords) {
 			for (int i = 0; i < s.length; i++) {
 				allPOSwords.add(s[i]);
@@ -587,57 +588,57 @@ public class convertToArff {
 
 		ArrayList<stringCont> wordsContPOS = new ArrayList<stringCont>();
 		ArrayList<stringCont> wordsContNEG = new ArrayList<stringCont>();
-		
+
 		/********************************************************************************/
-		
+
 		System.out.println("-> Calculating how many times positive words occurs");
-		
+
 		/********************************************************************************/
-		
+
 		Set<String> hashPOS = new HashSet<String>(allPOSwords);
-		
-		contPOS=0;
+
+		contPOS = 0;
 		for (String key : hashPOS) {
-			
+
 			wordsContPOS.add(new stringCont(key, Collections.frequency(allPOSwords, key)));
-			
-		    contPOS++;
-		    
-		    auxPercent = contPOS * 100 / hashPOS.size();
+
+			contPOS++;
+
+			auxPercent = contPOS * 100 / hashPOS.size();
 			if (auxPercentAnt != auxPercent) {
 
 				auxPercentAnt = auxPercent;
 				System.out.println("Calculando... " + auxPercent + "%");
 			}
-			
+
 		}
-		
+
 		/********************************************************************************/
-		
+
 		System.out.println("-> Calculating how many times negative words occurs");
-		
+
 		/********************************************************************************/
-		
+
 		Set<String> hashNEG = new HashSet<String>(allPOSwords);
-		
-		contNEG=0;
+
+		contNEG = 0;
 		for (String key : hashNEG) {
-		    
+
 			wordsContNEG.add(new stringCont(key, Collections.frequency(allNEGwords, key)));
-			
-		    contNEG++;
-		    
-		    auxPercent = contNEG * 100 / hashNEG.size();
+
+			contNEG++;
+
+			auxPercent = contNEG * 100 / hashNEG.size();
 			if (auxPercentAnt != auxPercent) {
 
 				auxPercentAnt = auxPercent;
 				System.out.println("Calculando... " + auxPercent + "%");
 			}
-			
+
 		}
-		
+
 		/*******************************************************************************/
-		
+
 		/* Adiciona no vetor com as palavras que mais aparecem. */
 
 		System.out.println("-> Calculating top 100 positive words");
@@ -680,7 +681,7 @@ public class convertToArff {
 			}
 		}
 
-		System.out.println("Top "+top_n_words+" positive words:");
+		System.out.println("Top " + top_n_words + " positive words:");
 		for (int i = 0; i < topStringsVectorPOS.length; i++) {
 			System.out
 					.println("String: " + topStringsVectorPOS[i].string + " - number: " + topStringsVectorPOS[i].cont);
@@ -691,7 +692,7 @@ public class convertToArff {
 		/* Adiciona no vetor com as palavras que mais aparecem. */
 
 		System.out.println("-> Calculating top 100 negative words");
-		
+
 		for (int i = 0; i < top_n_words; i++) {
 			topStringsVectorNEG[i] = new stringCont("", 0);
 		}
@@ -732,66 +733,83 @@ public class convertToArff {
 			}
 		}
 
-		System.out.println("Top "+top_n_words+" negative words:");
+		System.out.println("Top " + top_n_words + " negative words:");
 		for (int i = 0; i < topStringsVectorNEG.length; i++) {
 			System.out
 					.println("String: " + topStringsVectorNEG[i].string + " - number: " + topStringsVectorNEG[i].cont);
 		}
-		
+
 		System.out.println("-> Ok.");
 	}
 
-	public static void createArff(){
+	public static void createArff() {
 
-		
 		try {
 			PrintWriter arquivo = new PrintWriter("src/output/arquivo.arff", "UTF-16");
-			
+
 			arquivo.println("@relation reviews");
 			arquivo.println("");
-			
+
 			// Escreve as palavras negativas
-			for (int i = 0; i < topStringsVectorPOS.length; i++){
+			for (int i = 0; i < topStringsVectorPOS.length; i++) {
 				arquivo.println("@attribute " + topStringsVectorPOS[i].string + " real");
 			}
-			
+
 			// Escreve as palavras positivas
 			for (int j = 0; j < topStringsVectorNEG.length; j++)
 				arquivo.println("@attribute " + topStringsVectorNEG[j].string + " real");
-			
-			
+
 			arquivo.println("@attribute opiniao {pos, neg}");
 			arquivo.println("");
 			arquivo.println("@data");
+
+			int cont=0;
 			
-			for(int i=0; i<POSwords.size(); i++){
-				for(int j=1; j<POSwords.get(i).length; j++){
-					arquivo.printf(POSwords.get(i)[j]);
+			ArrayList<String> topPOS = new ArrayList<String>();
+			ArrayList<String> topNEG = new ArrayList<String>();
+			
+			for(int i=0; i<top_n_words; i++){
+				topPOS.add(topStringsVectorPOS[i].string);
+				topNEG.add(topStringsVectorNEG[i].string);
+			}
+			
+			/*************************************************************/
+			for (int i = 0; i < top_n_words; i++) {
+				for (int j = 0; j < POSwords.size(); j++) {
+					cont=0;
+					for (int k = 1; k < POSwords.get(j).length; k++) {
+						// arquivo.printf(POSwords.get(j)[k]);
+						if(topPOS.contains(POSwords.get(j)[k])){
+							cont++;
+						}
+						
+					}
+					arquivo.printf("%d",cont);
 					arquivo.printf(",");
 				}
+				
+				cont=0;
 				arquivo.printf("pos\n");
 			}
-			
-			for(int i=0; i<NEGwords.size(); i++){
-				
+			for (int i = 0; i < NEGwords.size(); i++) {
+
 			}
-			
+			/*************************************************************/
 			// Fechar depois de usar
 			arquivo.close();
-			
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		
-		
+
 	}
-	
+
 	public static void main(String[] args) {
 
 		long startTime = System.currentTimeMillis();
-		
+
 		System.out.println("Loading...\n");
 		UselessWords();
 
@@ -829,13 +847,14 @@ public class convertToArff {
 		System.out.println("Generating .arff...\n");
 
 		createArff();
-		
+
 		System.out.println("Ok.\n");
-		
+
 		long stopTime = System.currentTimeMillis();
-	    long elapsedTime = (stopTime - startTime)/1000;
-		
-		System.out.println(".arff created.\nLocation: src/output/name\n"+"Tempo de execução: "+elapsedTime+" segundos\nEnd.");
+		long elapsedTime = (stopTime - startTime) / 1000;
+
+		System.out.println(".arff created.\nLocation: src/output/name\n" + "Tempo de execução: " + elapsedTime
+				+ " segundos\nEnd.");
 
 	}
 
