@@ -822,14 +822,14 @@ public class convertToArff {
 		UselessWords();
 
 		try {
-			loadReviews("src/teste/part1/neg", false);
+			loadReviews("src/movie_review_dataset/part1/neg", false);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		try {
-			loadReviews("src/teste/part1/pos", true);
+			loadReviews("src/movie_review_dataset/part1/pos", true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
