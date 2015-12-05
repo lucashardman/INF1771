@@ -774,12 +774,11 @@ public class convertToArff {
 			}
 			
 			/*************************************************************/
-			for (int i = 0; i < top_n_words; i++) {
-				for (int j = 0; j < POSwords.size(); j++) {
+			for (int i = 0; i < POSwords.size(); i++) {
+				for (int j = 0; j < top_n_words; j++) {
 					cont=0;
-					for (int k = 1; k < POSwords.get(j).length; k++) {
-						// arquivo.printf(POSwords.get(j)[k]);
-						if(topPOS.contains(POSwords.get(j)[k])){
+					for (int k = 1; k < POSwords.get(i).length; k++) {
+						if(topPOS.get(j).equals(POSwords.get(i)[k])){
 							cont++;
 						}
 						
@@ -787,12 +786,21 @@ public class convertToArff {
 					arquivo.printf("%d",cont);
 					arquivo.printf(",");
 				}
-				
-				cont=0;
 				arquivo.printf("pos\n");
 			}
 			for (int i = 0; i < NEGwords.size(); i++) {
-
+				for (int j = 0; j < top_n_words; j++) {
+					cont=0;
+					for (int k = 1; k < NEGwords.get(i).length; k++) {
+						if(topPOS.get(j).equals(NEGwords.get(i)[k])){
+							cont++;
+						}
+						
+					}
+					arquivo.printf("%d",cont);
+					arquivo.printf(",");
+				}
+				arquivo.printf("neg\n");
 			}
 			/*************************************************************/
 			// Fechar depois de usar
