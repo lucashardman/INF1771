@@ -17,7 +17,7 @@ public class convertToArff {
 	public static boolean DEBUG_organizando_palavras = false;
 	public static boolean DEBUG_top = false;
 	public static boolean DEBUG_ambiguidade = false;
-	public static boolean DEBUG_top2 = true;
+	public static boolean DEBUG_top2 = false;
 	public static boolean DEBUG_escrevendo = false;
 	
 	// Local das reviews
@@ -147,7 +147,11 @@ public class convertToArff {
 			}
 		}
 		
+		
+		
 		// Agora fazendo o mesmo só que para as reviews positivas
+		
+		
 		pasta = new File(local_das_positivas);
 		lista_dos_arquivos = pasta.listFiles();
 		
@@ -542,7 +546,46 @@ public class convertToArff {
 		
 		// others
 		palavras_ruims2.add("movie");
-		palavras_ruims2.add("movie");
+		palavras_ruims2.add("film");
+		palavras_ruims2.add("guy");
+		palavras_ruims2.add("couldnt");
+		palavras_ruims2.add("house");
+		palavras_ruims2.add("american");
+		palavras_ruims2.add("theres");
+		palavras_ruims2.add("dont");
+		palavras_ruims2.add("wasnt");
+		palavras_ruims2.add("else");
+		palavras_ruims2.add("either");
+		palavras_ruims2.add("very");
+		palavras_ruims2.add("minutes");
+		palavras_ruims2.add("script");
+		palavras_ruims2.add("trying");
+		palavras_ruims2.add("maybe");
+		palavras_ruims2.add("put");
+		palavras_ruims2.add("comes");
+		palavras_ruims2.add("one");
+		palavras_ruims2.add("two");
+		palavras_ruims2.add("three");
+		palavras_ruims2.add("four");
+		palavras_ruims2.add("five");
+		palavras_ruims2.add("six");
+		palavras_ruims2.add("seven");
+		palavras_ruims2.add("eight");
+		palavras_ruims2.add("nine");
+		palavras_ruims2.add("mother");
+		palavras_ruims2.add("dad");
+		palavras_ruims2.add("son");
+		palavras_ruims2.add("sister");
+		palavras_ruims2.add("brother");
+		palavras_ruims2.add("kids");
+		palavras_ruims2.add("years");
+		palavras_ruims2.add("men");
+		palavras_ruims2.add("john");
+		palavras_ruims2.add("dvd");
+		palavras_ruims2.add("name");
+		palavras_ruims2.add("takes");
+		palavras_ruims2.add("im");
+		
 		
 		
 		
@@ -555,7 +598,7 @@ public class convertToArff {
 		palavras_ruims.add("  "); // Não queremos que tenha espaços em brancos como palavra
 		
 		if (DEBUG_definindo_palavras_feias) {
-			System.out.println("Numero de palavras ruims: " + palavras_ruims.size());
+			System.out.println("Numero de palavras ruims: " + (palavras_ruims.size() + palavras_ruims2.size()));
 			System.out.println("------------------------------------");
 		}
 		
@@ -855,12 +898,14 @@ public class convertToArff {
 			System.out.println("------------------------------------");
 		}
 		
+		if (DEBUG_ambiguidade)
+			System.out.println("\t Numero de palavras dentro das top " +  (palavra_negativa_top.size() + palavra_positiva_top.size()));
 		
 		// Pegar cada uma das palavras das negativas...
-		for (int i = 0; i < palavra_negativa_top.size() && i < quantidade_de_palavras; i++) {
+		for (int i = 0; i < palavra_negativa_top.size(); i++) {
 			
 			// ...e comparar com cada uma das positivas
-			for (int j = 0; j < palavra_positiva_top.size() && j < quantidade_de_palavras; j++) {
+			for (int j = 0; j < palavra_positiva_top.size(); j++) {
 				
 				// Se forem iguais
 				if (palavra_negativa_top.get(i).palavra.compareTo(palavra_positiva_top.get(j).palavra) == 0) {
@@ -991,13 +1036,15 @@ public class convertToArff {
 			arquivo.println("@relation reviews");
 			arquivo.println("");
 			
+			int contadorTemp = 0; // Apenas para esses dois loops embaixo
+			
 			// Escreve as palavras negativas
-			for (int i = 0; i < palavra_negativa_top.size() && i < quantidade_de_palavras; i++)
-				arquivo.println("@attribute contador" + i + " numeric");
+			for (int i = 0; i < palavra_negativa_top.size() && i < quantidade_de_palavras; i++, contadorTemp = i)
+				arquivo.println("@attribute '" + palavra_negativa_top.get(i).palavra + "' real");
 
 			// Escreve as palavras positivas
 			for (int j = 0; j < palavra_positiva_top.size() && j < quantidade_de_palavras; j++)
-				arquivo.println("@attribute contador" + (j+quantidade_de_palavras+1) + " numeric");
+				arquivo.println("@attribute '" + palavra_positiva_top.get(j).palavra + "' real");
 
 			arquivo.println("@attribute opiniao {pos, neg}");
 			arquivo.println("");
@@ -1012,12 +1059,12 @@ public class convertToArff {
 			
 			// Percorre todas as reviews negativas
 			for(int j = 0; j < review_negativa.size(); j++) {
+				
+				// Salva todas as palavras dessa review em um vetor
+				String[] palavra = review_negativa.get(j).split(" ");
 			
 				// Percorre todas as palavras importantes negativas
 				for (int i = 0; i < palavra_negativa_top.size() && i < quantidade_de_palavras; i++) {
-				
-					// Salva todas as palavras dessa review em um vetor
-					String[] palavra = review_negativa.get(j).split(" ");
 					
 					// Percorre todas palavras da review procurando uma igual a palavra top que procuramos
 					int contador = 0;
@@ -1025,7 +1072,7 @@ public class convertToArff {
 						
 						if (palavra[k].toLowerCase().compareTo(palavra_negativa_top.get(i).palavra) == 0){
 							if (DEBUG_escrevendo)
-								System.out.println(palavra[k].toLowerCase() + " = " + palavra_negativa_top.get(i).palavra);
+								System.out.println("Na review negativa " + j + " foi encontrada a palavra " + palavra[k]);
 							contador++;
 						}
 						
@@ -1036,9 +1083,6 @@ public class convertToArff {
 				
 				// Percorre todas as palavras importantes positivas
 				for (int i = 0; i < palavra_positiva_top.size() && i < quantidade_de_palavras; i++) {
-							
-					// Salva todas as palavras dessa review em um vetor
-					String[] palavra = review_positiva.get(j).split(" ");
 								
 					// Percorre todas palavras da review procurando uma igual a palavra top que procuramos
 					int contador = 0;
@@ -1046,7 +1090,7 @@ public class convertToArff {
 									
 						if (palavra[k].toLowerCase().compareTo(palavra_positiva_top.get(i).palavra) == 0) {
 							if (DEBUG_escrevendo)
-								System.out.println(palavra[k].toLowerCase() + " = " + palavra_positiva_top.get(i).palavra);
+								System.out.println("Na review negativa " + j + " foi encontrada a palavra " + palavra[k]);
 							contador++;
 						}
 									
@@ -1055,7 +1099,7 @@ public class convertToArff {
 					arquivo.print(contador + ",");
 				}
 				
-				arquivo.println("neg");
+				arquivo.print("neg" + "\n");
 			}
 			
 
@@ -1065,14 +1109,14 @@ public class convertToArff {
 				System.out.println("------------------------------------");
 			}
 			
-			// Percorre todas as reviews negativas
+			// Percorre todas as reviews positivas
 			for(int j = 0; j < review_positiva.size(); j++) {
+				
+				// Salva todas as palavras dessa review em um vetor
+				String[] palavra = review_positiva.get(j).split(" ");
 				
 				// Percorre todas as palavras importantes negativas
 				for (int i = 0; i < palavra_negativa_top.size() && i < quantidade_de_palavras; i++) {
-				
-					// Salva todas as palavras dessa review em um vetor
-					String[] palavra = review_negativa.get(j).split(" ");
 					
 					// Percorre todas palavras da review procurando uma igual a palavra top que procuramos
 					int contador = 0;
@@ -1080,7 +1124,7 @@ public class convertToArff {
 						
 						if (palavra[k].toLowerCase().compareTo(palavra_negativa_top.get(i).palavra) == 0){
 							if (DEBUG_escrevendo)
-								System.out.println(palavra[k].toLowerCase() + " = " + palavra_negativa_top.get(i).palavra);
+								System.out.println("Na review positiva " + j + " foi encontrada a palavra " + palavra[k]);
 							contador++;
 						}
 						
@@ -1091,9 +1135,6 @@ public class convertToArff {
 						
 				// Percorre todas as palavras importantes positivas
 				for (int i = 0; i < palavra_positiva_top.size() && i < quantidade_de_palavras; i++) {
-							
-					// Salva todas as palavras dessa review em um vetor
-					String[] palavra = review_positiva.get(j).split(" ");
 								
 					// Percorre todas palavras da review procurando uma igual a palavra top que procuramos
 					int contador = 0;
@@ -1101,7 +1142,7 @@ public class convertToArff {
 									
 						if (palavra[k].toLowerCase().compareTo(palavra_positiva_top.get(i).palavra) == 0) {
 							if (DEBUG_escrevendo)
-								System.out.println(palavra[k].toLowerCase() + " = " + palavra_positiva_top.get(i).palavra);
+								System.out.println("Na review positiva " + j + " foi encontrada a palavra " + palavra[k]);
 							contador++;
 						}
 									
@@ -1110,7 +1151,7 @@ public class convertToArff {
 					arquivo.print(contador + ",");
 				}
 							
-				arquivo.println("pos");
+				arquivo.print("pos" + "\n");
 			}
 			
 			
